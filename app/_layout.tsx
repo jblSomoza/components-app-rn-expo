@@ -1,23 +1,32 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { useEffect } from "react";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import "react-native-reanimated";
+
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 import "../global.css";
-import { Text } from 'react-native';
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { Stack } from "expo-router";
+import { allRoutes } from "@/constants/Routes";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const backgroundColor = useThemeColor({}, "background");
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
@@ -31,10 +40,27 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {/* <Stack> */}
-      {/* </Stack> */}
-      <Text className='text-3xl text-light-primary dark:text-dark-primary'>Root Layout</Text>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor }}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack
+          screenOptions={{
+            headerShadowVisible: false,
+            contentStyle: { flex: 1, backgroundColor },
+            headerStyle: { backgroundColor },
+          }}
+        >
+          <Stack.Screen name="index" options={{ title: "" }} />
+          {allRoutes.map((route, index) => (
+            <Stack.Screen
+              key={route.name}
+              name={route.name}
+              options={{
+                title: route.title,
+              }}
+            />
+          ))}
+        </Stack>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
